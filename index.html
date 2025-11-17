@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>WEB</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; line-height: 1.4; }
+  table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+  th, td { border: 1px solid #bbb; padding: 6px; text-align: center; }
+  th { background: #eee; }
+  .row-green { background: #dff0d8; }
+  .row-yellow { background: #fff3cd; }
+  .row-red { background: #f8d7da; }
+  .error { color: #b00020; font-size: 13px; min-height: 18px; }
+  .success { color: #0b7a0b; font-weight: bold; }
+  .field { display: flex; flex-direction: column; margin-bottom: 8px; max-width: 300px; }
+  input[type=text], input[type=email] { padding: 6px; }
+  button { padding: 7px 12px; margin: 4px 0; cursor: pointer; }
+  h2 { margin-top: 40px; }
+  
+  /* Report section styles */
+  #report-section { margin-top: 30px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; background: #f9f9f9; }
+  .stats-container { display: flex; justify-content: space-around; margin: 20px 0; }
+  .stat-box { text-align: center; padding: 15px; border-radius: 5px; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); min-width: 150px; }
+  .stat-value { font-size: 2em; font-weight: bold; margin: 10px 0; }
+  .stat-label { font-size: 0.9em; color: #666; }
+  .chart-container { display: flex; justify-content: center; margin-top: 20px; }
+  .chart-bar { display: flex; flex-direction: column; align-items: center; margin: 0 15px; }
+  .bar { width: 40px; background: #4a90e2; border-radius: 3px 3px 0 0; margin-bottom: 5px; }
+  .bar-label { font-size: 0.8em; }
+</style>
+</head>
+<body>
+
+<h2>Attendance Table</h2>
+<div id="attendance-wrapper">
+  <table id="attendance-table">
+    <thead>
+      <tr>
+        <th>Last Name</th><th>First Name</th>
+        <th colspan="6">Sessions (S1..S6)</th>
+        <th colspan="6">Participation (P1..P6)</th>
+        <th>Absences</th><th>Participations</th><th>Message</th>
+      </tr>
+      <tr>
+        <th></th><th></th>
+        <th>S1</th><th>S2</th><th>S3</th><th>S4</th><th>S5</th><th>S6</th>
+        <th>P1</th><th>P2</th><th>P3</th><th>P4</th><th>P5</th><th>P6</th>
+        <th></th><th></th><th></th>
+      </tr>
+    </thead>
+    <tbody id="attendance-body">
+      <tr>
+        <td class="lname">Ahmed</td><td class="fname">Sara</td>
+        <td><input type="checkbox" class="present" checked></td>
+        <td><input type="checkbox" class="present" checked></td>
+        <td><input type="checkbox" class="present"></td>
+        <td><input type="checkbox" class="present" checked></td>
+        <td><input type="checkbox" class="present"></td>
+        <td><input type="checkbox" class="present" checked></td>
+        <td><input type="checkbox" class="participation"></td>
+        <td><input type="checkbox" class="participation"></td>
+        <td><input type="checkbox" class="participation" checked></td>
+        <td><input type="checkbox" class="participation" checked></td>
+        <td><input type="checkbox" class="participation"></td>
+        <td><input type="checkbox" class="participation"></td>
+        <td class="absences">0</td><td class="participations">0</td><td class="message">—</td>
+      </tr>
+      <tr>
+        <td class="lname">Yacine</td><td class="fname">Ali</td>
+        <td><input type="checkbox" class="present" checked></td>
+        <td><input type="checkbox" class="present"></td>
+        <td><input type="checkbox" class="present" checked></td>
+        <td><input type="checkbox" class="present" checked></td>
+        <td><input type="checkbox" class="present" checked></td>
+        <td><input type="checkbox" class="present" checked></td>
+        <td><input type="checkbox" class="participation" checked></td>
+        <td><input type="checkbox" class="participation"></td>
+        <td><input type="checkbox" class="participation" checked></td>
+        <td><input type="checkbox" class="participation" checked></td>
+        <td><input type="checkbox" class="participation" checked></td>
+        <td><input type="checkbox" class="participation" checked></td>
+        <td class="absences">0</td><td class="participations">0</td><td class="message">—</td>
+      </tr>
+      <tr>
+        <td class="lname">Houcine</td><td class="fname">Rania</td>
+        <td><input type="checkbox" class="present" checked></td>
+        <td><input type="checkbox" class="present"></td>
+        <td><input type="checkbox" class="present" checked></td>
+        <td><input type="checkbox" class="present"></td>
+        <td><input type="checkbox" class="present" checked></td>
+        <td><input type="checkbox" class="present"></td>
+        <td><input type="checkbox" class="participation" checked></td>
+        <td><input type="checkbox" class="participation"></td>
+        <td><input type="checkbox" class="participation"></td>
+        <td><input type="checkbox" class="participation" checked></td>
+        <td><input type="checkbox" class="participation"></td>
+        <td><input type="checkbox" class="participation"></td>
+        <td class="absences">0</td><td class="participations">0</td><td class="message">—</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p>
+  <button id="computeBtn">Compute Results</button>
+  <button id="reportBtn">Show Report</button>
+</p>
+
+<!-- ================= Report Section ================= -->
+<div id="report-section" style="display: none;">
+  <h2>Attendance Report</h2>
+  <div class="stats-container">
+    <div class="stat-box">
+      <div class="stat-label">Total Students</div>
+      <div class="stat-value" id="total-students">0</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Present Students</div>
+      <div class="stat-value" id="present-students">0</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Participating Students</div>
+      <div class="stat-value" id="participating-students">0</div>
+    </div>
+  </div>
+  <div class="chart-container">
+    <div class="chart-bar">
+      <div class="bar" id="total-bar" style="height: 100px; background-color: #4a90e2;"></div>
+      <div class="bar-label">Total</div>
+    </div>
+    <div class="chart-bar">
+      <div class="bar" id="present-bar" style="height: 0px; background-color: #5cb85c;"></div>
+      <div class="bar-label">Present</div>
+    </div>
+    <div class="chart-bar">
+      <div class="bar" id="participation-bar" style="height: 0px; background-color: #f0ad4e;"></div>
+      <div class="bar-label">Participating</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= Add Student Form ================= -->
+<h2>Add Student</h2>
+<form id="addStudentForm" novalidate>
+  <div class="field">
+    <label for="studentId">Student ID</label>
+    <input id="studentId" type="text">
+    <div id="studentIdError" class="error"></div>
+  </div>
+  <div class="field">
+    <label for="lastName">Last Name</label>
+    <input id="lastName" type="text">
+    <div id="lastNameError" class="error"></div>
+  </div>
+  <div class="field">
+    <label for="firstName">First Name</label>
+    <input id="firstName" type="text">
+    <div id="firstNameError" class="error"></div>
+  </div>
+  <div class="field">
+    <label for="email">Email</label>
+    <input id="email" type="email">
+    <div id="emailError" class="error"></div>
+  </div>
+  <button type="submit">Submit</button>
+  <div id="formMessage"></div>
+</form>
+
+<script>
+// ---------- Attendance Computation ----------
+function computeAttendance() {
+  const rows = document.querySelectorAll('#attendance-body tr');
+  rows.forEach(row => {
+    const presentBoxes = row.querySelectorAll('.present');
+    const partBoxes = row.querySelectorAll('.participation');
+    let absences = 0, participations = 0;
+
+    presentBoxes.forEach(cb => { if (!cb.checked) absences++; });
+    partBoxes.forEach(cb => { if (cb.checked) participations++; });
+
+    row.querySelector('.absences').textContent = absences;
+    row.querySelector('.participations').textContent = participations;
+    row.classList.remove('row-green','row-yellow','row-red');
+
+    if (absences < 3) row.classList.add('row-green');
+    else if (absences <= 4) row.classList.add('row-yellow');
+    else row.classList.add('row-red');
+
+    let msg = '';
+    if (absences >= 5)
+      msg = 'Excluded - too many absences - You need to participate more';
+    else if (absences >= 3 || participations < 2)
+      msg = 'Warning - attendance low - You need to participate more';
+    else if (participations >= 4)
+      msg = 'Good attendance - Excellent participation';
+    else if (participations >= 2)
+      msg = 'Good attendance - Improve participation';
+    else
+      msg = 'Good attendance - You need to participate more';
+
+    row.querySelector('.message').textContent = msg;
+  });
+}
+
+// ---------- Report Generation ----------
+function generateReport() {
+  console.log("Generating report..."); // Debug log
+  
+  const rows = document.querySelectorAll('#attendance-body tr');
+  const totalStudents = rows.length;
+  
+  // Count students who are marked as present (based on your criteria)
+  let presentStudents = 0;
+  rows.forEach(row => {
+    const absences = parseInt(row.querySelector('.absences').textContent);
+    // A student is considered "present" if they have less than 3 absences
+    if (absences < 3) {
+      presentStudents++;
+    }
+  });
+  
+  // Count students who have participated (based on your criteria)
+  let participatingStudents = 0;
+  rows.forEach(row => {
+    const participations = parseInt(row.querySelector('.participations').textContent);
+    // A student is considered "participating" if they have at least 2 participations
+    if (participations >= 2) {
+      participatingStudents++;
+    }
+  });
+  
+  console.log("Total:", totalStudents, "Present:", presentStudents, "Participating:", participatingStudents); // Debug log
+  
+  // Update report values
+  document.getElementById('total-students').textContent = totalStudents;
+  document.getElementById('present-students').textContent = presentStudents;
+  document.getElementById('participating-students').textContent = participatingStudents;
+  
+  // Update chart bars (scaled to 100px max height)
+  const maxHeight = 100;
+  document.getElementById('total-bar').style.height = maxHeight + 'px';
+  document.getElementById('present-bar').style.height = 
+    totalStudents > 0 ? (presentStudents / totalStudents * maxHeight) + 'px' : '0px';
+  document.getElementById('participation-bar').style.height = 
+    totalStudents > 0 ? (participatingStudents / totalStudents * maxHeight) + 'px' : '0px';
+  
+  // Show the report section
+  document.getElementById('report-section').style.display = 'block';
+}
+
+// ---------- Event Listeners ----------
+document.getElementById('computeBtn').addEventListener('click', computeAttendance);
+document.getElementById('reportBtn').addEventListener('click', generateReport);
+
+// Initialize the page
+computeAttendance();
+
+// ---------- Form Validation + Add Row ----------
+const form = document.getElementById('addStudentForm');
+const studentId = document.getElementById('studentId');
+const lastName = document.getElementById('lastName');
+const firstName = document.getElementById('firstName');
+const email = document.getElementById('email');
+
+const idErr = document.getElementById('studentIdError');
+const lErr = document.getElementById('lastNameError');
+const fErr = document.getElementById('firstNameError');
+const eErr = document.getElementById('emailError');
+const formMsg = document.getElementById('formMessage');
+
+const reNum = /^\d+$/;
+const reLetters = /^[A-Za-z\s]+$/;
+const reEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function validateId() {
+  const v = studentId.value.trim();
+  if (!v) { idErr.textContent = "Student ID is required."; return false; }
+  if (!reNum.test(v)) { idErr.textContent = "Only numbers allowed."; return false; }
+  idErr.textContent = ""; return true;
+}
+function validateLast() {
+  const v = lastName.value.trim();
+  if (!v) { lErr.textContent = "Last Name is required."; return false; }
+  if (!reLetters.test(v)) { lErr.textContent = "Letters only."; return false; }
+  lErr.textContent = ""; return true;
+}
+function validateFirst() {
+  const v = firstName.value.trim();
+  if (!v) { fErr.textContent = "First Name is required."; return false; }
+  if (!reLetters.test(v)) { fErr.textContent = "Letters only."; return false; }
+  fErr.textContent = ""; return true;
+}
+function validateEmail() {
+  const v = email.value.trim();
+  if (!v) { eErr.textContent = "Email is required."; return false; }
+  if (!reEmail.test(v)) { eErr.textContent = "Invalid email."; return false; }
+  eErr.textContent = ""; return true;
+}
+
+studentId.addEventListener('input', validateId);
+lastName.addEventListener('input', validateLast);
+firstName.addEventListener('input', validateFirst);
+email.addEventListener('input', validateEmail);
+
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  formMsg.textContent = "";
+  const ok = validateId() & validateLast() & validateFirst() & validateEmail();
+  if (!ok) {
+    formMsg.textContent = "Fix the errors before submitting.";
+    formMsg.className = "";
+    return;
+  }
+
+  // ----- Create new table row -----
+  const tbody = document.getElementById('attendance-body');
+  const row = document.createElement('tr');
+  row.innerHTML = `
+    <td class="lname">${lastName.value.trim()}</td>
+    <td class="fname">${firstName.value.trim()}</td>
+    ${Array(6).fill('<td><input type="checkbox" class="present"></td>').join('')}
+    ${Array(6).fill('<td><input type="checkbox" class="participation"></td>').join('')}
+    <td class="absences">0</td>
+    <td class="participations">0</td>
+    <td class="message">—</td>
+  `;
+  tbody.appendChild(row);
+
+  computeAttendance(); // update colors/messages
+
+  form.reset();
+  formMsg.textContent = "Student added successfully!";
+  formMsg.className = "success";
+});
+</script>
+</body>
+</html>
